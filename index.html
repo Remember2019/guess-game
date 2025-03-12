@@ -36,9 +36,9 @@
       let beta = event.beta; // 设备在水平面上的倾斜度，以度为单位。正值表示设备向右上方倾斜，负值表示向左上方倾斜，0表示设备处于水平状态。
       let gamma = event.gamma; // 设备在其自身的轴上的旋转，以度为单位。正值表示设备逆时针旋转，负值表示顺时针旋转，0表示设备未旋转。
 
-      document.getElementById('orientationOutput').innerHTML = "指南针: " + alpha.toFixed(2) +
-              "\n倾斜度: " + beta.toFixed(2) +
-              "\n旋转度: " + gamma.toFixed(2);
+      document.getElementById('orientationOutput').innerHTML = "指南针（0为北）: " + alpha.toFixed(2) +
+              "\n手机短边倾斜度（上下翻转）: " + beta.toFixed(2) +
+              "\n手机长边旋转度（左右翻转）: " + gamma.toFixed(2);
     }, false);
   } else {
     document.getElementById('orientationOutput').innerHTML = "此浏览器不支持Device Orientation API.";
