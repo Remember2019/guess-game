@@ -4,8 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>猜词</title>
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/naive-ui"></script>
+    <link rel="stylesheet" href="./css/element-index.css">
+    <link rel="manifest" href="/manifest.json">
+    <script src="./scripts/vue.global.js"></script>
+    <script src="./scripts/element-plus/index.full.js"></script>
+    <script src="./scripts/element-plus/zh-cn.js"></script>
+    <script src="./scripts/element-plus/icons-vue.js"></script>
+    <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
 <div id="app">
@@ -13,59 +18,104 @@
     <button onclick="requestPermission()">请求重力感应权限</button>
     <p id="orientationOutput">等待设备方向信息...</p>
     <p id="beta"></p>
-    <n-button>{{ message }}</n-button>
+    <el-button @click="startGame">开始游戏</el-button>
+    <el-button @click="nextWord">下一个</el-button>
+    <el-button @click="startListening">开始监听</el-button>
+    <el-button @click="stopListening">停止监听</el-button>
+    <div class="word-card">
+        <p>{{ wordList[currentId] }}</p>
+    </div>
 </div>
 <script>
-    const App = {
+    const { createApp, reactive, ref, computed, onMounted, nextTick } = Vue;
+    const { ElButton, ElCard, ElIcon, ElMessage } = ElementPlus;
+    const app =  createApp({
         setup() {
-            return {
-                message: 'naive'
+            const currentId = ref(0);
+            const errorList = ref([]);
+            const correctList = ref([]);
+            const wordList = ref(['苹果', '香蕉', '樱桃', '枣', '黑莓', '无花果', '葡萄', '哈密瓜']);
+
+            function requestPermission() {
+                if (typeof DeviceOrientationEvent !== 'undefined' &&
+                    typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    DeviceOrientationEvent.requestPermission()
+                        .then(permissionState => {
+                            if (permissionState === 'granted') {
+                                ElMessage.success("方向传感器正常！");
+                            } else {
+                                ElMessage.error("方向传感器权限被拒绝！");
+                                console.log('permission denied.');
+                            }
+                        })
+                        .catch((err) => {
+                            console.error("permission failed:", err);
+                        });
+                } else {
+                    ElMessage.info('当前设备或浏览器不支持方向传感器！');
+                }
             }
+
+            const startGame = () => {
+                console.log('game init...');
+                currentId.value = 0;
+                errorList.value = [];
+                correctList.value = [];
+                requestPermission();
+                console.log('start!');
+            }
+            const nextWord = () => {
+                console.log(currentId.value);
+                console.log(wordList.value[currentId.value]);
+                if (currentId.value < wordList.value.length) {
+                    currentId.value++;
+                } else {
+                    console.log('没有更多词语了!');
+                }
+            }
+            let deviceOrientationHandler = function (event) {
+                let beta = event.beta; // 获取设备的 beta 角度
+                if (beta >= 55 && beta <= 125) {
+                    ElMessage.info('等待中');
+                    // document.getElementById('orientationOutput').innerHTML = "设备处于垂直状态（等待）";
+                } else if (beta > 125) {
+                    ElMessage.success('正确！');
+                    // document.getElementById('orientationOutput').innerHTML = "设备向前翻转（正确）";
+                } else if (beta < 55) {
+                    ElMessage.error('错误！');
+                    // document.getElementById('orientationOutput').innerHTML = "设备向后翻转（错误）";
+                }
+                //document.getElementById('beta').innerHTML = beta.toFixed(2);
+            };
+
+            function startListening() {
+                if (window.DeviceOrientationEvent) {
+                    window.addEventListener('deviceorientation', deviceOrientationHandler, false);
+                }
+            }
+
+            function stopListening() {
+                window.removeEventListener('deviceorientation', deviceOrientationHandler);
+            }
+
+            return {
+                currentId,
+                errorList,
+                correctList,
+                wordList,
+                nextWord,
+                startGame,
+                startListening,
+                stopListening,
+            };
         }
+    });
+    for ([name, comp] of Object.entries(ElementPlusIconsVue)) {
+        app.component(name, comp);
     }
-    const app = Vue.createApp(App);
-    app.use(naive);
+    app.use(ElementPlus, { locale: ElementPlusLocaleZhCn });
     app.mount('#app');
 </script>
 
-<script>
-  function requestPermission() {
-    if (typeof DeviceOrientationEvent !== 'undefined' &&
-            typeof DeviceOrientationEvent.requestPermission === 'function') {
-
-      DeviceOrientationEvent.requestPermission()
-              .then(permissionState => {
-                if (permissionState === 'granted') {
-                  alert('方向传感器授权成功！');
-                } else {
-                  document.getElementById('orientationOutput').innerHTML = "授权被拒绝！";
-                }
-              })
-              .catch((err) => {
-                console.error("请求权限失败:", err);
-              });
-    } else {
-      console.log('当前设备或浏览器不支持方向传感器 API');
-    }
-  }
-
-  if (window.DeviceOrientationEvent) {
-    window.addEventListener('deviceorientation', function(event) {
-      let alpha = event.alpha; // 设备在指南针中的方向，以度为单位，从0到360度。0度指向地理北极。
-      let beta = event.beta; // 设备在水平面上的倾斜度，以度为单位。正值表示设备向右上方倾斜，负值表示向左上方倾斜，0表示设备处于水平状态。
-      let gamma = event.gamma; // 设备在其自身的轴上的旋转，以度为单位。正值表示设备逆时针旋转，负值表示顺时针旋转，0表示设备未旋转。
-        if (beta >= 55 && beta <= 125) {
-          document.getElementById('orientationOutput').innerHTML = "设备处于垂直状态（等待）";
-        } else if (beta > 125) {
-          document.getElementById('orientationOutput').innerHTML = "设备向前翻转（正确）";
-        } else if (beta < 55) {
-          document.getElementById('orientationOutput').innerHTML = "设备向后翻转（错误）";
-        }
-      document.getElementById('beta').innerHTML = beta.toFixed(2);
-    }, false);
-  } else {
-    document.getElementById('orientationOutput').innerHTML = "此浏览器不支持Device Orientation API.";
-  }
-</script>
 </body>
 </html>
