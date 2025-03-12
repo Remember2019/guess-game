@@ -3,12 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Title</title>
+    <title>猜词</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/naive-ui"></script>
 </head>
 <body>
-<h1>测试重力</h1>
-<button onclick="requestPermission()">请求重力感应权限</button>
-<p id="orientationOutput">等待设备方向信息...</p>
+<div id="app">
+    <h1>测试重力</h1>
+    <button onclick="requestPermission()">请求重力感应权限</button>
+    <p id="orientationOutput">等待设备方向信息...</p>
+    <p id="beta"></p>
+    <n-button>{{ message }}</n-button>
+</div>
+<script>
+    const App = {
+        setup() {
+            return {
+                message: 'naive'
+            }
+        }
+    }
+    const app = Vue.createApp(App);
+    app.use(naive);
+    app.mount('#app');
+</script>
+
 <script>
   function requestPermission() {
     if (typeof DeviceOrientationEvent !== 'undefined' &&
@@ -35,15 +54,18 @@
       let alpha = event.alpha; // 设备在指南针中的方向，以度为单位，从0到360度。0度指向地理北极。
       let beta = event.beta; // 设备在水平面上的倾斜度，以度为单位。正值表示设备向右上方倾斜，负值表示向左上方倾斜，0表示设备处于水平状态。
       let gamma = event.gamma; // 设备在其自身的轴上的旋转，以度为单位。正值表示设备逆时针旋转，负值表示顺时针旋转，0表示设备未旋转。
-
-      document.getElementById('orientationOutput').innerHTML = "指南针（0为北）: " + alpha.toFixed(2) +
-              "\n手机短边倾斜度（上下翻转）: " + beta.toFixed(2) +
-              "\n手机长边旋转度（左右翻转）: " + gamma.toFixed(2);
+        if (beta >= 75 && beta <= 105) {
+          document.getElementById('orientationOutput').innerHTML = "设备处于垂直状态（等待）";
+        } else if (beta > 105) {
+          document.getElementById('orientationOutput').innerHTML = "设备向前翻转（正确）";
+        } else if (beta < 75) {
+          document.getElementById('orientationOutput').innerHTML = "设备向后翻转（错误）";
+        }
+      document.getElementById('beta').innerHTML = beta.toFixed(2);
     }, false);
   } else {
     document.getElementById('orientationOutput').innerHTML = "此浏览器不支持Device Orientation API.";
   }
-
 </script>
 </body>
 </html>
