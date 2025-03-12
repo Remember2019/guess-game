@@ -77,12 +77,15 @@
                 let beta = event.beta; // 获取设备的 beta 角度
                 if (beta >= 55 && beta <= 125) {
                     ElMessage.info('等待中');
+                    startListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备处于垂直状态（等待）";
                 } else if (beta > 125) {
                     ElMessage.success('正确！');
+                    stopListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备向前翻转（正确）";
                 } else if (beta < 55) {
                     ElMessage.error('错误！');
+                    stopListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备向后翻转（错误）";
                 }
                 //document.getElementById('beta').innerHTML = beta.toFixed(2);
