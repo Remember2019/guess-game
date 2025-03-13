@@ -17,8 +17,8 @@
     <div class="guess-header">
         <h1>猜词</h1>
         <el-countdown title="剩余时间" format="mm:ss" :value="expiredTime"
-        @finish="countdownFinish" v-if="orientationCommand === 'game'"></el-countdown>
-        <el-button @click="startGame" v-if="orientationCommand !== 'game'">开始</el-button>
+        @finish="countdownFinish"></el-countdown>
+        <el-button @click="startGame">开始</el-button>
     </div>
     <div class="word-card">
         <p class="current-word">{{ wordList[currentId] }}</p>
@@ -30,7 +30,7 @@
     const app =  createApp({
         setup() {
             const expiredTime = ref(Date.now() + 3 * 60 * 1000);
-            const orientationCommand = ref('');
+            const orientationCommand = ref('stop');
             const currentId = ref(0);
             const errorList = ref([]);
             const correctList = ref([]);
@@ -93,6 +93,7 @@
                     currentId.value++;
                 } else {
                     stopListening();
+                    orientationCommand.value = 'stop';
                     console.log('没有更多词语了，游戏结束!');
                 }
             }
@@ -155,6 +156,7 @@
 
             const countdownFinish = () => {
                 ElMessage.warning('时间到！');
+                orientationCommand.value = 'stop';
                 stopListening();
                 console.log('time is up!');
             }
