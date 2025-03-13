@@ -17,8 +17,8 @@
     <div class="guess-header">
         <h1>猜词</h1>
         <el-countdown title="剩余时间" format="mm:ss" :value="expiredTime"
-        @finish="countdownFinish"></el-countdown>
-        <el-button @click="startGame">开始</el-button>
+        @finish="countdownFinish" v-if="showRemainingTime"></el-countdown>
+        <el-button @click="startGame" v-if="!showRemainingTime">开始</el-button>
     </div>
     <div class="word-card">
         <p class="current-word">{{ wordList[currentId] }}</p>
@@ -31,6 +31,7 @@
         setup() {
             const expiredTime = ref(Date.now() + 3 * 60 * 1000);
             const orientationCommand = ref('stop');
+            const showRemainingTime = ref(false);
             const currentId = ref(0);
             const errorList = ref([]);
             const correctList = ref([]);
@@ -99,10 +100,11 @@
             }
 
             let deviceOrientationHandler = function (event) {
-                let beta = event.beta; // 获取设备的 beta 角度
+                let beta = event.beta;
                 if (beta >= 55 && beta <= 125) {
                     if (orientationCommand.value === 'prepare') {
-                        expiredTime.value = Date.now() + 3 * 60 * 1000;
+                        expiredTime.value = Date.now() + 10 * 1000;
+                        showRemainingTime.value = true;
                         stopListening();
                         ElMessage.success('开始猜词！');
                         console.log('vertical success.');
@@ -115,9 +117,6 @@
                         orientationCommand.value = 'game';
                         startListening();
                     }
-                    // ElMessage.info('等待中');
-                    // startListening();
-                    // document.getElementById('orientationOutput').innerHTML = "设备处于垂直状态（等待）";
                 } else if (beta > 125) {
                     if (orientationCommand.value === 'game') {
                         stopListening();
@@ -126,9 +125,6 @@
                         orientationCommand.value = 'wait';
                         startListening();
                     }
-                    // ElMessage.success('正确！');
-                    // stopListening();
-                    // document.getElementById('orientationOutput').innerHTML = "设备向前翻转（正确）";
                 } else if (beta < 55) {
                     if (orientationCommand.value === 'game') {
                         stopListening();
@@ -137,11 +133,7 @@
                         orientationCommand.value = 'wait';
                         startListening();
                     }
-                    // ElMessage.error('错误！');
-                    // stopListening();
-                    // document.getElementById('orientationOutput').innerHTML = "设备向后翻转（错误）";
                 }
-                //document.getElementById('beta').innerHTML = beta.toFixed(2);
             };
 
             function startListening() {
@@ -157,6 +149,7 @@
             const countdownFinish = () => {
                 ElMessage.warning('时间到！');
                 orientationCommand.value = 'stop';
+                showRemainingTime.value = false;
                 stopListening();
                 console.log('time is up!');
             }
@@ -164,6 +157,7 @@
             return {
                 currentId,
                 expiredTime,
+                showRemainingTime,
                 errorList,
                 correctList,
                 wordList,
