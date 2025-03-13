@@ -62,11 +62,10 @@
 
             const startGuess = () => {
                 ElMessage.warning('请将设备垂直，屏幕面向自己！');
+                console.log('Now waiting for user to vertical.')
                 deviceOrientation.value = -1; // 初始化设备方向
                 startListening();
-                while (deviceOrientation.value !== 0) {
-                    // 等待设备垂直
-                }
+
                 stopListening();
                 ElMessage.success('设备垂直，开始猜谜！');
             }
