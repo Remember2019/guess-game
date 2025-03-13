@@ -19,7 +19,7 @@
     <p id="orientationOutput">等待设备方向信息...</p>
     <p id="beta"></p>
     <el-button @click="startGame">开始游戏</el-button>
-    <el-button @click="nextWord">下一个</el-button>
+    <el-button @click="nextWord(false)">下一个</el-button>
     <el-button @click="startListening">开始监听</el-button>
     <el-button @click="stopListening">停止监听</el-button>
     <div class="word-card">
@@ -31,6 +31,7 @@
     const { ElButton, ElCard, ElIcon, ElMessage } = ElementPlus;
     const app =  createApp({
         setup() {
+            const deviceOrientation = ref(-1);
             const currentId = ref(0);
             const errorList = ref([]);
             const correctList = ref([]);
@@ -43,49 +44,83 @@
                         .then(permissionState => {
                             if (permissionState === 'granted') {
                                 ElMessage.success("方向传感器正常！");
+                                return true;
                             } else {
                                 ElMessage.error("方向传感器权限被拒绝！");
                                 console.log('permission denied.');
+                                return false;
                             }
                         })
                         .catch((err) => {
                             console.error("permission failed:", err);
+                            return false;
                         });
                 } else {
-                    ElMessage.info('当前设备或浏览器不支持方向传感器！');
+                    ElMessage.error('当前设备或浏览器不支持方向传感器！');
+                    return false;
                 }
             }
 
+            const startGuess = () => {
+                ElMessage.warning('请将设备垂直，屏幕面向自己！');
+                deviceOrientation.value = -1; // 初始化设备方向
+                startListening();
+                while (deviceOrientation.value !== 0) {
+                    // 等待设备垂直
+                }
+                stopListening();
+                ElMessage.success('设备垂直，开始猜谜！');
+            }
+
+
             const startGame = () => {
                 console.log('game init...');
+                ElMessage.warning('正在初始化...')
                 currentId.value = 0;
                 errorList.value = [];
                 correctList.value = [];
-                requestPermission();
-                console.log('start!');
+                ElMessage.warning('正在获取必要权限');
+                if (requestPermission()) {
+                    ElMessage.success('游戏开始！');
+                    console.log('start!');
+                    startGuess();
+                } else {
+                    console.log('failed.');
+                }
             }
-            const nextWord = () => {
-                console.log(currentId.value);
-                console.log(wordList.value[currentId.value]);
+            const nextWord = (isCorrect) => {
+                const correctHint = isCorrect?'correct':'error';
+                console.log('this word:[' + currentId.value + ']' + wordList.value[currentId.value] + ' which is ' + correctHint);
+                if (isCorrect) {
+                    correctList.value.push(currentId.value);
+                } else {
+                    errorList.value.push(currentId.value);
+                }
+                console.log('correctList:',correctList.value);
+                console.log('errorList:',errorList.value);
                 if (currentId.value < wordList.value.length) {
                     currentId.value++;
                 } else {
                     console.log('没有更多词语了!');
                 }
             }
+
             let deviceOrientationHandler = function (event) {
                 let beta = event.beta; // 获取设备的 beta 角度
                 if (beta >= 55 && beta <= 125) {
-                    ElMessage.info('等待中');
-                    startListening();
+                    deviceOrientation.value = 0;
+                    // ElMessage.info('等待中');
+                    // startListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备处于垂直状态（等待）";
                 } else if (beta > 125) {
-                    ElMessage.success('正确！');
-                    stopListening();
+                    deviceOrientation.value = 1;
+                    // ElMessage.success('正确！');
+                    // stopListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备向前翻转（正确）";
                 } else if (beta < 55) {
-                    ElMessage.error('错误！');
-                    stopListening();
+                    deviceOrientation.value = 2;
+                    // ElMessage.error('错误！');
+                    // stopListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备向后翻转（错误）";
                 }
                 //document.getElementById('beta').innerHTML = beta.toFixed(2);
@@ -103,6 +138,7 @@
 
             return {
                 currentId,
+                deviceOrientation,
                 errorList,
                 correctList,
                 wordList,
