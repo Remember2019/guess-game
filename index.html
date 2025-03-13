@@ -21,7 +21,7 @@
     <el-button @click="startGame">开始游戏</el-button>
     <el-button @click="nextWord(false)">下一个</el-button>
     <el-button @click="startListening">开始监听</el-button>
-    <el-button @click="stopListening">停止监听</el-button>
+    <el-button @click="stopListening">停止</el-button>
     <div class="word-card">
         <p>{{ wordList[currentId] }}</p>
     </div>
@@ -101,18 +101,36 @@
                 if (beta >= 55 && beta <= 125) {
                     if (orientationCommand.value === 'prepare') {
                         stopListening();
+                        ElMessage.success('开始猜词！');
                         console.log('vertical success.');
+                        orientationCommand.value = 'game';
+                        startListening();
+                    } else if (orientationCommand.value === 'wait') {
+                        stopListening();
+                        ElMessage.success('继续');
+                        orientationCommand.value = 'game';
+                        startListening();
                     }
                     // ElMessage.info('等待中');
                     // startListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备处于垂直状态（等待）";
                 } else if (beta > 125) {
-                    deviceOrientation.value = 1;
+                    if (orientationCommand.value === 'game') {
+                        stopListening();
+                        ElMessage.success('正确！');
+                        orientationCommand.value = 'wait';
+                        startListening();
+                    }
                     // ElMessage.success('正确！');
                     // stopListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备向前翻转（正确）";
                 } else if (beta < 55) {
-                    deviceOrientation.value = 2;
+                    if (orientationCommand.value === 'game') {
+                        stopListening();
+                        ElMessage.error('错误！');
+                        orientationCommand.value = 'wait';
+                        startListening();
+                    }
                     // ElMessage.error('错误！');
                     // stopListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备向后翻转（错误）";
