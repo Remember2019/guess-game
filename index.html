@@ -20,7 +20,7 @@
         @finish="countdownFinish" v-if="showRemainingTime"></el-countdown>
         <el-button @click="startGame" v-if="!showRemainingTime">开始</el-button>
     </div>
-    <div class="word-card" v-if="!gameOver">
+    <div class="word-card" v-if="!gameOver" :style="{ backgroundColor: background }">
         <p class="current-word">{{ wordList[currentId] }}</p>
     </div>
     <div class="result" v-if="gameOver">
@@ -40,6 +40,7 @@
     const { ElButton, ElCard, ElIcon, ElMessage } = ElementPlus;
     const app =  createApp({
         setup() {
+            const background = ref('');
             const expiredTime = ref(Date.now() + 3 * 60 * 1000);
             const orientationCommand = ref('stop');
             const showRemainingTime = ref(false);
@@ -82,10 +83,10 @@
 
             const startGame = () => {
                 console.log('game init...');
-                ElMessage.warning('正在初始化...')
+                // ElMessage.warning('正在初始化...')
                 currentId.value = 0;
                 correctList.value = [];
-                ElMessage.warning('正在获取必要权限');
+                gameOver.value = false;
                 requestPermission();
             }
             const guessWord = (isCorrect) => {
@@ -113,13 +114,14 @@
                         expiredTime.value = Date.now() + 10 * 1000;
                         showRemainingTime.value = true;
                         stopListening();
-                        ElMessage.success('开始猜词！');
+                        // ElMessage.success('开始猜词！');
                         console.log('vertical success.');
                         orientationCommand.value = 'game';
                         startListening();
                     } else if (orientationCommand.value === 'wait') {
                         stopListening();
-                        ElMessage.info('继续');
+                        // ElMessage.info('继续');
+                        background.value = 'white';
                         nextWord();
                         orientationCommand.value = 'game';
                         startListening();
@@ -127,7 +129,8 @@
                 } else if (beta > 125) {
                     if (orientationCommand.value === 'game') {
                         stopListening();
-                        ElMessage.success('正确！');
+                        // ElMessage.success('正确！');
+                        background.value = 'green';
                         guessWord(true);
                         orientationCommand.value = 'wait';
                         startListening();
@@ -135,7 +138,8 @@
                 } else if (beta < 55) {
                     if (orientationCommand.value === 'game') {
                         stopListening();
-                        ElMessage.error('错误！');
+                        // ElMessage.error('错误！');
+                        background.value = 'red';
                         guessWord(false);
                         orientationCommand.value = 'wait';
                         startListening();
@@ -174,6 +178,7 @@
                 gameOver,
                 correctList,
                 wordList,
+                background,
                 nextWord,
                 startGame,
                 countdownFinish,
