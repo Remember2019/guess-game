@@ -79,7 +79,7 @@
                 ElMessage.warning('正在获取必要权限');
                 requestPermission();
             }
-            const nextWord = (isCorrect) => {
+            const guessWord = (isCorrect) => {
                 const correctHint = isCorrect?'correct':'error';
                 console.log('this word:[' + currentId.value + ']' + wordList.value[currentId.value] + ' which is ' + correctHint);
                 if (isCorrect) {
@@ -89,10 +89,13 @@
                 }
                 console.log('correctList:',correctList.value);
                 console.log('errorList:',errorList.value);
+            }
+            const nextWord = () => {
                 if (currentId.value < wordList.value.length) {
                     currentId.value++;
                 } else {
-                    console.log('没有更多词语了!');
+                    stopListening();
+                    console.log('没有更多词语了，游戏结束!');
                 }
             }
 
@@ -107,7 +110,8 @@
                         startListening();
                     } else if (orientationCommand.value === 'wait') {
                         stopListening();
-                        ElMessage.success('继续');
+                        ElMessage.info('继续');
+                        nextWord();
                         orientationCommand.value = 'game';
                         startListening();
                     }
@@ -118,6 +122,7 @@
                     if (orientationCommand.value === 'game') {
                         stopListening();
                         ElMessage.success('正确！');
+                        guessWord(true);
                         orientationCommand.value = 'wait';
                         startListening();
                     }
@@ -128,6 +133,7 @@
                     if (orientationCommand.value === 'game') {
                         stopListening();
                         ElMessage.error('错误！');
+                        guessWord(false);
                         orientationCommand.value = 'wait';
                         startListening();
                     }
