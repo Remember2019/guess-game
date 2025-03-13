@@ -43,23 +43,20 @@
                     DeviceOrientationEvent.requestPermission()
                         .then(permissionState => {
                             if (permissionState === 'granted') {
-                                console.log('game start');
+                                console.log('game start!');
                                 ElMessage.success("开始游戏！");
                                 // startGuess();
-                                return true;
                             } else {
                                 ElMessage.error("方向传感器权限被拒绝！");
                                 console.log('permission denied.');
-                                return false;
                             }
                         })
                         .catch((err) => {
                             console.error("permission failed:", err);
-                            return false;
                         });
                 } else {
                     ElMessage.error('当前设备或浏览器不支持方向传感器！');
-                    return false;
+                    console.log('DeviceOrientationEvent not supported.');
                 }
             }
 
@@ -82,11 +79,7 @@
                 errorList.value = [];
                 correctList.value = [];
                 ElMessage.warning('正在获取必要权限');
-                if (requestPermission()) {
-                    console.log('start!');
-                } else {
-                    console.log('failed.');
-                }
+                requestPermission();
             }
             const nextWord = (isCorrect) => {
                 const correctHint = isCorrect?'correct':'error';
