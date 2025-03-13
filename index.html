@@ -32,6 +32,7 @@
     const app =  createApp({
         setup() {
             const deviceOrientation = ref(-1);
+            const orientationCommand = ref('');
             const currentId = ref(0);
             const errorList = ref([]);
             const correctList = ref([]);
@@ -63,7 +64,7 @@
             const startGuess = () => {
                 ElMessage.warning('请将设备垂直，屏幕面向自己！');
                 console.log('Now waiting for user to vertical.')
-                deviceOrientation.value = -1; // 初始化设备方向
+                orientationCommand.value = 'prepare';
                 startListening();
 
                 stopListening();
@@ -100,7 +101,10 @@
             let deviceOrientationHandler = function (event) {
                 let beta = event.beta; // 获取设备的 beta 角度
                 if (beta >= 55 && beta <= 125) {
-                    deviceOrientation.value = 0;
+                    if (orientationCommand.value === 'prepare') {
+                        stopListening();
+                        console.log('vertical success.');
+                    }
                     // ElMessage.info('等待中');
                     // startListening();
                     // document.getElementById('orientationOutput').innerHTML = "设备处于垂直状态（等待）";
