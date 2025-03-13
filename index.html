@@ -43,7 +43,9 @@
                     DeviceOrientationEvent.requestPermission()
                         .then(permissionState => {
                             if (permissionState === 'granted') {
-                                ElMessage.success("方向传感器正常！");
+                                console.log('game start');
+                                ElMessage.success("开始游戏！");
+                                startGuess();
                                 return true;
                             } else {
                                 ElMessage.error("方向传感器权限被拒绝！");
@@ -81,9 +83,7 @@
                 correctList.value = [];
                 ElMessage.warning('正在获取必要权限');
                 if (requestPermission()) {
-                    ElMessage.success('游戏开始！');
                     console.log('start!');
-                    startGuess();
                 } else {
                     console.log('failed.');
                 }
