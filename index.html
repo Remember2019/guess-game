@@ -23,9 +23,16 @@
     <div class="word-card" v-if="!gameOver">
         <p class="current-word">{{ wordList[currentId] }}</p>
     </div>
-    <div class="result" v-if="gameOver">
+    <div class="result" v-if="!gameOver">
         <p>Game Over</p>
-        <p>{{ correctList.length }}</p>
+        <p>得分：{{ correctList.length }}</p>
+        <el-scrollbar height="80vh">
+            <p v-for="(item, index) in wordList" :key="index">
+                {{ index }} {{ item }}
+                <span v-if="correctList.includes(index)">✅</span>
+                <span v-else>❌</span>
+            </p>
+        </el-scrollbar>
     </div>
 </div>
 <script>
