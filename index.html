@@ -20,8 +20,12 @@
         @finish="countdownFinish" v-if="showRemainingTime"></el-countdown>
         <el-button @click="startGame" v-if="!showRemainingTime">开始</el-button>
     </div>
-    <div class="word-card">
+    <div class="word-card" v-if="!gameOver">
         <p class="current-word">{{ wordList[currentId] }}</p>
+    </div>
+    <div class="result" v-if="gameOver">
+        <p>Game Over</p>
+        <p>{{ correctList.length }}</p>
     </div>
 </div>
 <script>
@@ -32,8 +36,8 @@
             const expiredTime = ref(Date.now() + 3 * 60 * 1000);
             const orientationCommand = ref('stop');
             const showRemainingTime = ref(false);
+            const gameOver = ref(false);
             const currentId = ref(0);
-            const errorList = ref([]);
             const correctList = ref([]);
             const wordList = ref(['苹果', '香蕉', '樱桃', '枣', '黑莓', '无花果', '葡萄', '哈密瓜']);
 
@@ -73,7 +77,6 @@
                 console.log('game init...');
                 ElMessage.warning('正在初始化...')
                 currentId.value = 0;
-                errorList.value = [];
                 correctList.value = [];
                 ElMessage.warning('正在获取必要权限');
                 requestPermission();
@@ -83,11 +86,8 @@
                 console.log('this word:[' + currentId.value + ']' + wordList.value[currentId.value] + ' which is ' + correctHint);
                 if (isCorrect) {
                     correctList.value.push(currentId.value);
-                } else {
-                    errorList.value.push(currentId.value);
                 }
                 console.log('correctList:',correctList.value);
-                console.log('errorList:',errorList.value);
             }
             const nextWord = () => {
                 if (currentId.value < wordList.value.length) {
@@ -146,19 +146,24 @@
                 window.removeEventListener('deviceorientation', deviceOrientationHandler);
             }
 
+            const showResult = () => {
+                gameOver.value = true;
+            }
+
             const countdownFinish = () => {
                 ElMessage.warning('时间到！');
                 orientationCommand.value = 'stop';
                 showRemainingTime.value = false;
                 stopListening();
                 console.log('time is up!');
+                showResult();
             }
 
             return {
                 currentId,
                 expiredTime,
                 showRemainingTime,
-                errorList,
+                gameOver,
                 correctList,
                 wordList,
                 nextWord,
