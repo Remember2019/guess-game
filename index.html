@@ -20,10 +20,10 @@
         @finish="countdownFinish" v-if="showRemainingTime"></el-countdown>
         <el-button @click="startGame" v-if="!showRemainingTime">开始</el-button>
     </div>
-    <div class="word-card" v-if="gameOver" :style="{ backgroundColor: background }">
+    <div class="word-card" v-if="!gameOver" :style="{ backgroundColor: background }">
         <p class="current-word">{{ wordList[currentId] }}</p>
     </div>
-    <div class="result" v-if="!gameOver">
+    <div class="result" v-if="gameOver">
         <p>Game Over</p>
         <p>得分：{{ correctList.length }}</p>
         <el-scrollbar height="80vh" style="box-sizing: border-box; width: 100%">
@@ -121,7 +121,7 @@
                     } else if (orientationCommand.value === 'wait') {
                         stopListening();
                         // ElMessage.info('继续');
-                        background.value = 'white';
+                        background.value = '#f0f0f0';
                         nextWord();
                         orientationCommand.value = 'game';
                         startListening();
@@ -130,7 +130,7 @@
                     if (orientationCommand.value === 'game') {
                         stopListening();
                         // ElMessage.success('正确！');
-                        background.value = 'green';
+                        background.value = '#1da81d';
                         guessWord(true);
                         orientationCommand.value = 'wait';
                         startListening();
@@ -139,7 +139,7 @@
                     if (orientationCommand.value === 'game') {
                         stopListening();
                         // ElMessage.error('错误！');
-                        background.value = 'red';
+                        background.value = '#ff384f';
                         guessWord(false);
                         orientationCommand.value = 'wait';
                         startListening();
