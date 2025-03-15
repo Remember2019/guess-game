@@ -20,15 +20,15 @@
         @finish="countdownFinish" v-if="showRemainingTime"></el-countdown>
         <el-button @click="startGame" v-if="!showRemainingTime">开始</el-button>
     </div>
-    <div class="word-card" v-if="!gameOver" :style="{ backgroundColor: background }">
+    <div class="word-card" v-if="gameOver" :style="{ backgroundColor: background }">
         <p class="current-word">{{ wordList[currentId] }}</p>
     </div>
-    <div class="result" v-if="gameOver">
+    <div class="result" v-if="!gameOver">
         <p>Game Over</p>
         <p>得分：{{ correctList.length }}</p>
-        <el-scrollbar height="80vh">
-            <p v-for="(item, index) in wordList" :key="index">
-                {{ index }} {{ item }}
+        <el-scrollbar height="80vh" style="box-sizing: border-box; width: 100%">
+            <p v-for="(item, index) in wordList" :key="index" class="result-list" :style="{ backgroundColor: index }">
+                <span>{{ index }} {{ item }}</span>
                 <span v-if="correctList.includes(index)">✅</span>
                 <span v-else>❌</span>
             </p>

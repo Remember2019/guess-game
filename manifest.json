@@ -1,6 +1,6 @@
 {
-  "name": "Anything物品管理系统",
-  "short_name": "Anything",
+  "name": "你说我猜",
+  "short_name": "你说我猜",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#ffffff",
