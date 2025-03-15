@@ -109,7 +109,7 @@
 
             let deviceOrientationHandler = function (event) {
                 let beta = event.beta;
-                if (beta >= 55 && beta <= 125) {
+                if (beta >= 75 && beta <= 105) {
                     if (orientationCommand.value === 'prepare') {
                         expiredTime.value = Date.now() + 10 * 1000;
                         showRemainingTime.value = true;
