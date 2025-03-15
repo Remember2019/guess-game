@@ -27,7 +27,7 @@
         <p>Game Over</p>
         <p>得分：{{ correctList.length }}</p>
         <el-scrollbar height="80vh" style="box-sizing: border-box; width: 100%">
-            <p v-for="(item, index) in wordList" :key="index" class="result-list" :style="{ backgroundColor: index }">
+            <p v-for="(item, index) in wordList.slice(0, currentId)" :key="index" class="result-list" :style="{ backgroundColor: index }">
                 <span>{{ index }} {{ item }}</span>
                 <span v-if="correctList.includes(index)">✅</span>
                 <span v-else>❌</span>
@@ -47,7 +47,8 @@
             const gameOver = ref(false);
             const currentId = ref(0);
             const correctList = ref([]);
-            const wordList = ref(['苹果', '香蕉', '樱桃', '枣', '黑莓', '无花果', '葡萄', '哈密瓜']);
+            const wordList = ref(['等待']);
+            const rawWordList = ref(['苹果', '香蕉', '樱桃', '枣', '黑莓', '无花果', '葡萄', '哈密瓜']);
 
             function requestPermission() {
                 if (typeof DeviceOrientationEvent !== 'undefined' &&
@@ -111,7 +112,8 @@
                 let beta = event.beta;
                 if (beta >= 75 && beta <= 105) {
                     if (orientationCommand.value === 'prepare') {
-                        expiredTime.value = Date.now() + 10 * 1000;
+                        expiredTime.value = Date.now() + 3 * 60 * 1000;
+                        wordList.value = rawWordList.value.sort(() => Math.random() - 0.5);
                         showRemainingTime.value = true;
                         stopListening();
                         // ElMessage.success('开始猜词！');
